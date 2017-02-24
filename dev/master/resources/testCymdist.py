@@ -6,14 +6,15 @@
 # Make sure that the python path is set, such as by running
 # export PYTHONPATH=`pwd`
 
-def r1_r1(iS, uR, uS, yS, dyS, iwR):
+def r1_r1(iS, uR, uS, uTS, uLS, yS, dyS, iwR):
     f = open("r1_r1.txt", 'w')
     f.write(str(iS) + " " + str(uR) + " " + str(uS) + 
-    " " + str(yS) + " " + str(dyS) + " " + str(iwR))
+    str(uTS) + " " + str(uLS) + " " + str(yS) + 
+    " " + str(dyS) + " " + str(iwR))
     f.close()
     return uR
     
-def r2_r1(iS, uR, uS, yS, dyS, iwR):
+def r2_r1(iS, uR, uS, uTS, uLS, yS, dyS, iwR):
     f = open("r2_r1.txt", 'w')
     f.write(str(iS) + " " + str(uR) + " " + str(uS) + 
     " " + str(yS) + " " + str(dyS) + " " + str(iwR))
@@ -27,14 +28,14 @@ def par3_r1(iS, yS, dyS, parR, parS, iwR):
     f.close()
     return parR[0] + parR[1] + parR[2]   
     
-def r1_r2(iS, uR, uS, yS, dyS, iwR):
+def r1_r2(iS, uR, uS, uTS, uLS, yS, dyS, iwR):
     f = open("r1_r2.txt", 'w')
     f.write(str(iS) + " " + str(uR) + " " + str(uS) + 
     " " + str(yS) + " " + str(dyS) + " " + str(iwR))
     f.close()
     return [uR,  uR*2]       
     
-def r2p2_r2(iS, uR, uS, yS, dyS, parR, parS, iwR):
+def r2p2_r2(iS, uR, uS, uTS, uLS, yS, dyS, parR, parS, iwR):
     f = open("r2_r2.txt", 'w')
     f.write("The input file name is: " + iS + "." +
             " The input names are: " + uS[0] + ", " + uS[1] + "." +

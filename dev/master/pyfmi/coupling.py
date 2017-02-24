@@ -46,17 +46,25 @@ def simulate_single_fmu():
     input_names = ['VMAG_A', 'VMAG_B', 'VMAG_C', 'VANG_A', 'VANG_B', 'VANG_C']
     input_values = [2520, 2520, 2520, 0.0, -120.0, 120.0]
     output_names = ['KWA', 'KWB', 'KWC', 'KVARA', 'KVARB', 'KVARC']
-    output_node_names = ['800032440', '800032440', '800032440', 
+    output_locations = ['800032440', '800032440', '800032440', 
                          '800032440', '800032440', '800032440']
 
     # Set the inputs
+    start = datetime.now()
     opts=cymdist.simulate_options()
     opts['ncp']=1.0
     #opts['step_size']=1.0
     for cnt, elem in enumerate(input_names):
         cymdist.set (elem, input_values[cnt])
-    # Run simulation    
+    # Run simulation   
+    grid_model_val_ref = cymdist.get_variable_valueref("inputFileName")
+    print("This is the value reference " + str(grid_model_val_ref))
+    grid_model_path = bytes("Z:\\thierry\\proj\\cyder_repo\\NO_SHARING\\CYMDIST\\BU0001.sxst", 'utf-8')
+    #cymdist.set_string([grid_model_val_ref], [bytes("Z:\\thierry\\proj\\cyder_repo\\NO_SHARING\\CYMDIST\\BU0001.sxst", 'utf-8')])
     res=cymdist.simulate(start_time=0.0, final_time=0.1)    
+    end = datetime.now()
+    print('Ran a coupled CYMDIST/GridDyn simulation in ' +
+        str((end - start).total_seconds()) + ' seconds.')
 
 def simulate_multiple_fmus():
     """Simulate one CYMDIST FMU coupled to a dummy GridDyn FMU.
@@ -96,6 +104,6 @@ def simulate_multiple_fmus():
           str((end - start).total_seconds()) + ' seconds.')
         
 if __name__ == '__main__':
-    #simulate_single_fmu()
+    simulate_single_fmu()
     #simulate_multiple_fmus()
-    simulate_algebraicloop_fmus()
+    #simulate_algebraicloop_fmus()

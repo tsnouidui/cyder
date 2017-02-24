@@ -417,11 +417,13 @@ class CYMDISTToFMU(object):
 
         # Iterate through the XML file and get the ModelVariables.
         input_variable_names = []
+        input_types = []
+        input_locations = []
         modelica_input_variable_names = []
         # modelicaInputVariableNames = []
         output_variable_names = []
         modelica_concat_output_variable_names = []
-        output_node_names = []
+        output_locations = []
         concat_output_variable_names = []
         parameter_variable_values = []
         parameter_variable_names = []
@@ -446,6 +448,25 @@ class CYMDISTToFMU(object):
                 # Iterate through children of ScalarVariables and get
                 # attributes
                 #scalar_variable['name'] = name
+                if (causality == 'input'):
+                    input_variable_names.append(name)
+                    log.info('Invalid characters will be removed from the '
+                    'input variable name ' + name + '.')
+                    new_name = sanitize_name(name)
+                    log.info('The new input variable name is ' \
+                             + new_name + '.')
+                    modelica_input_variable_names.append(new_name)
+                    scalar_variable['name'] = new_name
+                    inpY1 = inpY1 - indel
+                    inpY2 = inpY2 - indel
+                    scalar_variable['annotation'] = (' annotation'
+                                                     '(Placement'
+                                                     '(transformation'
+                                                     '(extent={{-122,'
+                                                     + str(inpY1) + '},'
+                                                     '{-100,' + str(inpY2)
+                                                     + '}})))')
+
                 for subelement in element:
                     vartype = subelement.tag
                     vartype_low = vartype.lower()
@@ -459,26 +480,9 @@ class CYMDISTToFMU(object):
                         unit = subelement.attrib.get('unit')
                         start = subelement.attrib.get('start')
                     # Get the node name of an output variable
-                    if (vartype_low == 'node' and causality == 'output'):
-                        nodName = subelement.attrib.get('name')
-                        # Create list of output variables
-                        output_variable_names.append(name)
-                        # Create list with node name of output variable
-                        output_node_names.append(nodName)
-                        log.info('The output name ' + name + ' will be concatenated '
-                                 'with the node name ' + nodName + ' to be unique.')
-                        new_name = name + '_' + nodName
-                        log.info('The new output name is ' + new_name + '.')
-                        
-                        log.info('Invalid characters will be removed from the '
-                         'concatenated output variable name ' + new_name + '.')
-                        new_name = sanitize_name(new_name)
-                        log.info('The new concatenated output variable name is ' \
-                                 + new_name + '.')
-                        modelica_concat_output_variable_names.append(new_name)
-                        scalar_variable['name'] = new_name
-                        #concat_output_variable_names.append(scalar_variable['name'])
-                        
+                    if (vartype_low == 'location' and causality == 'output'):
+                        locName = subelement.attrib.get('name')
+
                     if ((start is None) and ((causality == 'input')
                                              or causality == 'parameter')):
                         # Set the start value of input and parameter to zero.
@@ -501,48 +505,59 @@ class CYMDISTToFMU(object):
                         scalar_variable['description'] = ''
                     scalar_variable['causality'] = causality
                     if (causality == 'input'):
-                        input_variable_names.append(name)
-                        log.info('Invalid characters will be removed from the '
-                         'input variable name ' + name + '.')
-                        new_name = sanitize_name(name)
-                        log.info('The new input variable name is ' \
-                                 + new_name + '.')
-                        modelica_input_variable_names.append(new_name)
-                        scalar_variable['name'] = new_name
+                        if (vartype_low == 'type'):
+                            typName = subelement.attrib.get('name')
+                            if(typName is None):
+                                typName = ""
+                            # Create list of input types
+                            input_types.append(typName)
+
+                        if (vartype_low == 'location'):
+                            locName = subelement.attrib.get('name')
+                            # Create list of input location
+                            if(locName is None):
+                                locName = ""
+                            input_locations.append(locName)      
+                if (causality == 'output'):
+                    output_variable_names.append(name)
+                    # Create list with location name of output variable
+                    output_locations.append(locName)
+                    log.info('The output name ' + name + ' will be concatenated '
+                             'with the location name ' + locName + ' to be unique.')
+                    new_name = name + '_' + locName
+                    log.info('The new output name is ' + new_name + '.')
+                    
+                    log.info('Invalid characters will be removed from the '
+                     'concatenated output variable name ' + new_name + '.')
+                    new_name = sanitize_name(new_name)
+                    log.info('The new concatenated output variable name is ' \
+                             + new_name + '.')
+                    modelica_concat_output_variable_names.append(new_name)
+                    scalar_variable['name'] = new_name
                         
-                        inpY1 = inpY1 - indel
-                        inpY2 = inpY2 - indel
-                        scalar_variable['annotation'] = (' annotation'
-                                                         '(Placement'
-                                                         '(transformation'
-                                                         '(extent={{-122,'
-                                                         + str(inpY1) + '},'
-                                                         '{-100,' + str(inpY2)
-                                                         + '}})))')
-                    if (causality == 'output'):
-                        outY1 = outY1 - outdel
-                        outY2 = outY2 - outdel
-                        scalar_variable['annotation'] = (' annotation'
-                                                         '(Placement'
-                                                         '(transformation'
-                                                         '(extent={{100,'
-                                                         + str(outY1) + '},'
-                                                         '{120,' + str(outY2)
-                                                         + '}})))')
-                    if (causality == 'parameter'):
-                        parameter_variable_names.append(name)
-                        log.info('Invalid characters will be removed from the '
-                         'parameter variable name ' + name + '.')
-                        new_name = sanitize_name(name)
-                        log.info('The new parameter variable name is ' \
-                                 + new_name + '.')
-                        modelica_parameter_variable_names.append(new_name)
-                        scalar_variable['name'] = new_name
-                        parameter_variable_values.append(start)
-                    scalar_variable['vartype'] = vartype
-                    scalar_variable['unit'] = unit
-                    if not (start is None):
-                        scalar_variable['start'] = start
+                    outY1 = outY1 - outdel
+                    outY2 = outY2 - outdel
+                    scalar_variable['annotation'] = (' annotation'
+                                                     '(Placement'
+                                                     '(transformation'
+                                                     '(extent={{100,'
+                                                     + str(outY1) + '},'
+                                                     '{120,' + str(outY2)
+                                                     + '}})))')
+                if (causality == 'parameter'):
+                    parameter_variable_names.append(name)
+                    log.info('Invalid characters will be removed from the '
+                     'parameter variable name ' + name + '.')
+                    new_name = sanitize_name(name)
+                    log.info('The new parameter variable name is ' \
+                             + new_name + '.')
+                    modelica_parameter_variable_names.append(new_name)
+                    scalar_variable['name'] = new_name
+                    parameter_variable_values.append(start)
+                scalar_variable['vartype'] = vartype
+                scalar_variable['unit'] = unit
+                if not (start is None):
+                    scalar_variable['start'] = start
                 scalar_variables.append(scalar_variable)
             # perform some checks on variables to avoid name clashes
             # before returning the variables to Modelica            
@@ -554,10 +569,12 @@ class CYMDISTToFMU(object):
 
             # Write success.
             log.info('Parsing of ' + self.xml_path + ' was successfull.')
-            return scalar_variables, input_variable_names, \
-                output_variable_names, concat_output_variable_names, \
-                output_node_names, parameter_variable_names, \
-                parameter_variable_values, modelica_input_variable_names, \
+            return scalar_variables, input_variable_names, input_types, \
+                input_locations, output_variable_names, \
+                concat_output_variable_names, \
+                output_locations, parameter_variable_names, \
+                parameter_variable_values, \
+                modelica_input_variable_names, \
                 modelica_concat_output_variable_names, \
                 modelica_parameter_variable_names
 
@@ -575,9 +592,10 @@ class CYMDISTToFMU(object):
 
         self.xml_validator()
         scalar_variables, input_variable_names, \
+            input_types, input_locations, \
             output_variable_names, \
             concat_output_variable_names, \
-            output_node_names, \
+            output_locations, \
             parameter_variable_names, \
             parameter_variable_values, \
             modelica_input_variable_names, \
@@ -594,9 +612,11 @@ class CYMDISTToFMU(object):
                                      write_results=self.write_results,
                                      scalar_variables=scalar_variables,
                                      input_variable_names=input_variable_names,
+                                     input_types=input_types,
+                                     input_locations=input_locations,
                                      output_variable_names=output_variable_names,
                                      concat_output_variable_names=concat_output_variable_names,
-                                     output_node_names=output_node_names,
+                                     output_locations=output_locations,
                                      parameter_variable_names=parameter_variable_names,
                                      parameter_variable_values=parameter_variable_values,
                                      modelica_input_variable_names=modelica_input_variable_names,

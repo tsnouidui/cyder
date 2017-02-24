@@ -17,9 +17,10 @@ model {{model_name}}
   {%- endif -%}
   {% endfor %}
  
+  //parameter String inputFileName=Modelica.Utilities.Files.loadResource("{{input_file_path}}") 
+  // "Name of the CYMDIST input file";
+  parameter String inputFileName="{{input_file_path}}"  "Name of the CYMDIST input file";
 protected   
-  parameter String inputFileName=Modelica.Utilities.Files.loadResource("{{input_file_path}}") 
-    "Name of the CYMDIST input file";
   parameter Integer resWri={{write_results}} 
     "Flag for enabling results writing. 1: write results, 0: else";
   parameter Integer nDblPar={{parameter_variable_names|length}} 
@@ -62,6 +63,10 @@ protected
   {% if (input_variable_names|length==0) -%} 
   parameter String dblInpNam[nDblInp]
     "Input variables names to be sent to CYMDIST";
+  parameter String dblInpTyp[nDblInp]
+    "Input variables types to be sent to CYMDIST"; 
+  parameter String dblInpLoc[nDblInp]
+    "Input variables locations to be sent to CYMDIST";
   {%- else %}
   {% set comma = joiner(",") -%}   
   parameter String dblInpNam[nDblInp]={
@@ -69,11 +74,28 @@ protected
   {{comma()}}
   "{{row}}"
   {%- endfor %} 
-  }"Input variables names to be sent to CYMDIST";
+  }"Input variables names to be sent to CYMDIST"; 
+  {% set comma = joiner(",") -%}   
+  parameter String dblInpTyp[nDblInp]={
+  {%- for row in input_types -%}
+  {{comma()}}
+  "{{row}}"
+  {%- endfor %} 
+  }"Input variables types to be sent to CYMDIST";
+  {% set comma = joiner(",") -%}   
+  parameter String dblInpLoc[nDblInp]={
+  {%- for row in input_locations -%}
+  {{comma()}}
+  "{{row}}"
+  {%- endfor %} 
+  }"Input variables locations to be sent to CYMDIST";
   {%- endif %}
+  
   {% if (output_variable_names|length==0) -%} 
   parameter String dblOutNam[nDblOut]
     "Output variables names to be received from CYMDIST";
+  parameter String dblOutLoc[nDblOut] 
+    "Output variables locations to be sent to CYMDIST";
   {%- else %}
   {% set comma = joiner(",") -%} 
   parameter String dblOutNam[nDblOut]={
@@ -82,18 +104,13 @@ protected
   "{{row}}"
   {%- endfor %} 
   }"Output variables names to be received from CYMDIST";
-  {%- endif %}
-  {% if (output_variable_names|length==0) -%} 
-  parameter String dblOutNodNam[nDblOut] 
-    "Output variables nodes names to be sent to CYMDIST";
-  {%- else %}
   {% set comma = joiner(",") -%}
-  parameter String dblOutNodNam[nDblOut]={
-  {%- for row in output_node_names -%}
+  parameter String dblOutLoc[nDblOut]={
+  {%- for row in output_locations -%}
   {{comma()}}
   "{{row}}"
   {%- endfor %}
-  }"Node variables names to be sent to CYMDIST";
+  }"Output variables locations to be sent to CYMDIST";
   {%- endif %}
   {% if (parameter_variable_names|length==0) -%} 
   parameter String dblParNam[nDblPar](each start="") 
@@ -169,10 +186,12 @@ equation
       inputFileName=inputFileName,
       nDblInp=nDblInp,
       dblInpNam=dblInpNam,
+      dblInpTyp=dblInpTyp,
+      dblInpLoc=dblInpLoc,
       dblInpVal=dblInpVal,
       nDblOut=nDblOut,
       dblOutNam=dblOutNam,
-      dblOutNodNam=dblOutNodNam,
+      dblOutLoc=dblOutLoc,
       nDblPar=nDblPar,
       dblParNam=dblParNam,
       dblParVal=dblParVal,

@@ -14,21 +14,25 @@ def main():
     print (os.getcwd())
     input_names = ['VMAG_A', 'VMAG_B', 'VMAG_C', 'VANG_A', 'VANG_B', 'VANG_C']
     input_values = [2520, 2520, 2520, 0.0, -120.0, 120.0]
+    input_types = ['VMAG_A', 'VMAG_B', 'VMAG_C', 'VANG_A', 'VANG_B', 'VANG_C']
+    input_locations = ['VMAG_A', 'VMAG_B', 'VMAG_C', 'VANG_A', 'VANG_B', 'VANG_C']
     output_names = ['KWA', 'KWB', 'KWC', 'KVARA', 'KVARB', 'KVARC']
-    output_node_names = ['800032440', '800032440', '800032440', 
+    output_locations = ['800032440', '800032440', '800032440', 
                          '800032440', '800032440', '800032440']
     exchange("BU0001.sxst", input_values, input_names,
-             output_names, output_node_names, 0)
+             input_types, input_locations, 
+             output_names, output_locations, 0)
 
 def exchange(input_file_name, input_values, input_names,
-             output_names, output_node_names, write_results):
+             input_types, input_locations, output_names, 
+             output_locations, write_results):
     """
      Args:
         input_file_name (str): Name of the CYMDIST grid model.
         input_values(dbl): Input values.
         input_names(str): Input names.
         output_names(str):  Output names.
-        output_node_names(str): Outputs nodes names.
+        output_locations(str): Outputs locations names.
         write_results(int): Flag for writing results.
 
 
@@ -37,8 +41,9 @@ def exchange(input_file_name, input_values, input_names,
     results = []
     n_exp_res = len(output_names)
     start = datetime.now()
-    outputs = functions.fmu_wrapper(input_file_name, input_values, input_names,
-                                   output_names, output_node_names, write_results)
+    print("This is the input_file_name " + input_file_name)
+#     outputs = functions.fmu_wrapper(input_file_name, input_values, input_names,
+#                                    output_names, output_locations, write_results)
     end = datetime.now()
     print('Ran a CYMDIST simulation in ' +
           str((end - start).total_seconds()) + ' seconds.')
