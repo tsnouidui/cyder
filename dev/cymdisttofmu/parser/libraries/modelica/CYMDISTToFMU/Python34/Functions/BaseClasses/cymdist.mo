@@ -8,8 +8,10 @@ function cymdist "Function that communicates with the CYMDISTToFMU Python API"
   input Real    dblInpVal[max(1, nDblInp)] "Input variables values to be sent to CYMDISTToFMU";
   input String  dblParNam[nDblPar] "Parameter variables names to send to CYMDISTToFMU";
   input String  dblOutNam[max(1, nDblOut)] "Output variables names to be read from CYMDISTToFMU";
-  input String  dblOutNodNam[max(1, nDblOut)] "Output variables nodes names to be read from CYMDISTToFMU";
+  input String  dblOutLoc[max(1, nDblOut)] "Output variables locations to be read from CYMDISTToFMU";
   input String  dblInpNam[max(1, nDblInp)] "Input variables names to be sent to CYMDISTToFMU";
+  input String  dblInpTyp[max(1, nDblInp)] "Input variables types to be sent to CYMDISTToFMU";
+  input String  dblInpLoc[max(1, nDblInp)] "Input variables locations to be sent to CYMDISTToFMU";
   input Integer nDblInp(min=0) "Number of double inputs to send to CYMDISTToFMU";
   input Integer nDblOut(min=0) "Number of double outputs to read from CYMDISTToFMU";
   input Integer nDblPar(min=0) "Number of double parameters to send to CYMDISTToFMU";
@@ -20,8 +22,9 @@ function cymdist "Function that communicates with the CYMDISTToFMU Python API"
   external "C" pythonExchangeValuesCymdist(moduleName, functionName,
                                     inputFileName,
                                     nDblInp, dblInpNam,
+                                    dblInpTyp, dblInpLoc,
                                     dblInpVal, nDblOut,
-                                    dblOutNam, dblOutNodNam,
+                                    dblOutNam, dblOutLoc,
                                     dblOutVal,nDblPar,
                                     dblParNam,dblParVal,
                                     resWri)
